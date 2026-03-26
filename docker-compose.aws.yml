@@ -54,6 +54,10 @@ services:
         condition: service_healthy
     environment:
       - PIPELINE_TEMPORAL_HOST=temporal-server:7233
+      - PIPELINE_S3_ENDPOINT_URL=
+      - PIPELINE_SQS_ENDPOINT_URL=
+      - PIPELINE_AWS_ACCESS_KEY_ID=
+      - PIPELINE_AWS_SECRET_ACCESS_KEY=
       - PIPELINE_S3_BUCKET=${PIPELINE_S3_BUCKET}
       - PIPELINE_S3_REGION=us-east-1
       - PIPELINE_SQS_QUEUE_NAME=${PIPELINE_SQS_QUEUE_NAME}
@@ -68,6 +72,10 @@ services:
         condition: service_healthy
     environment:
       - PIPELINE_TEMPORAL_HOST=temporal-server:7233
+      - PIPELINE_S3_ENDPOINT_URL=
+      - PIPELINE_SQS_ENDPOINT_URL=
+      - PIPELINE_AWS_ACCESS_KEY_ID=
+      - PIPELINE_AWS_SECRET_ACCESS_KEY=
       - PIPELINE_S3_BUCKET=${PIPELINE_S3_BUCKET}
       - PIPELINE_S3_REGION=us-east-1
     command: ["python", "-m", "src.workers.training_worker"]
@@ -81,6 +89,10 @@ services:
         condition: service_healthy
     environment:
       - PIPELINE_TEMPORAL_HOST=temporal-server:7233
+      - PIPELINE_S3_ENDPOINT_URL=
+      - PIPELINE_SQS_ENDPOINT_URL=
+      - PIPELINE_AWS_ACCESS_KEY_ID=
+      - PIPELINE_AWS_SECRET_ACCESS_KEY=
       - PIPELINE_S3_BUCKET=${PIPELINE_S3_BUCKET}
       - PIPELINE_S3_REGION=us-east-1
       - PIPELINE_SQS_QUEUE_NAME=${PIPELINE_SQS_QUEUE_NAME}
