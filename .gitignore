@@ -25,3 +25,7 @@ terraform.tfstate
 .env
 .env.prod
 .env.dev
+
+
+# Data files
+data/
