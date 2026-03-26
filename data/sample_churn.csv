@@ -1,0 +1,21 @@
+customerID,gender,SeniorCitizen,Partner,Dependents,tenure,PhoneService,InternetService,Contract,MonthlyCharges,TotalCharges,Churn
+1,Male,0,Yes,No,12,Yes,DSL,Month-to-month,29.85,358.20,No
+2,Female,1,No,No,34,Yes,Fiber optic,One year,56.95,1936.30,Yes
+3,Male,0,Yes,Yes,5,No,No,Two year,20.00,100.00,No
+4,Female,1,No,No,72,Yes,DSL,Month-to-month,89.10,6415.20,Yes
+5,Male,0,Yes,Yes,1,Yes,DSL,One year,45.00,45.00,No
+6,Female,0,No,Yes,24,Yes,Fiber optic,Month-to-month,70.35,1688.40,Yes
+7,Male,1,Yes,No,48,Yes,DSL,Two year,35.50,1704.00,No
+8,Female,0,Yes,Yes,10,Yes,Fiber optic,Month-to-month,85.20,852.00,Yes
+9,Male,0,No,No,60,Yes,DSL,One year,55.00,3300.00,No
+10,Female,1,Yes,No,3,No,No,Month-to-month,19.75,59.25,Yes
+11,Male,0,No,Yes,36,Yes,DSL,Two year,42.30,1522.80,No
+12,Female,0,Yes,No,15,Yes,Fiber optic,One year,78.50,1177.50,No
+13,Male,1,No,No,8,Yes,DSL,Month-to-month,53.45,427.60,Yes
+14,Female,0,Yes,Yes,45,Yes,DSL,Two year,39.00,1755.00,No
+15,Male,0,No,No,2,Yes,Fiber optic,Month-to-month,92.00,184.00,Yes
+16,Female,1,Yes,No,28,Yes,DSL,One year,61.20,1713.60,No
+17,Male,0,No,Yes,18,No,No,Month-to-month,22.50,405.00,No
+18,Female,0,Yes,No,55,Yes,Fiber optic,Two year,75.80,4169.00,No
+19,Male,0,No,No,7,Yes,DSL,Month-to-month,48.60,,Yes
+20,Female,1,Yes,Yes,40,Yes,DSL,One year,58.30,,No

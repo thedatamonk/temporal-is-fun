@@ -1,0 +1,5 @@
+# Copy this to terraform.tfvars and fill in your values
+# Find your IP: curl -s https://checkip.amazonaws.com
+
+allowed_ip          = "YOUR_IP/32"
+ssh_public_key_path = "~/.ssh/id_rsa.pub"

@@ -1,0 +1,109 @@
+services:
+  postgresql:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: temporal
+      POSTGRES_PASSWORD: temporal
+      POSTGRES_DB: temporal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U temporal"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  temporal-server:
+    image: temporalio/auto-setup:latest
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    environment:
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=postgresql
+    ports:
+      - "7233:7233"
+    healthcheck:
+      test: ["CMD", "tctl", "--address", "temporal-server:7233", "cluster", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  temporal-ui:
+    image: temporalio/ui:latest
+    depends_on:
+      temporal-server:
+        condition: service_healthy
+    environment:
+      - TEMPORAL_ADDRESS=temporal-server:7233
+    ports:
+      - "8080:8080"
+
+  localstack:
+    image: localstack/localstack:latest
+    environment:
+      - SERVICES=s3,sqs
+      - DEFAULT_REGION=us-east-1
+      - LOCALSTACK_ACKNOWLEDGE_ACCOUNT_REQUIREMENT=1
+    ports:
+      - "4566:4566"
+    volumes:
+      - "./scripts/localstack-init.sh:/etc/localstack/init/ready.d/init.sh"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  default-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    depends_on:
+      temporal-server:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    environment:
+      - PIPELINE_TEMPORAL_HOST=temporal-server:7233
+      - PIPELINE_S3_ENDPOINT_URL=http://localstack:4566
+      - PIPELINE_SQS_ENDPOINT_URL=http://localstack:4566
+      - PIPELINE_AWS_ACCESS_KEY_ID=test
+      - PIPELINE_AWS_SECRET_ACCESS_KEY=test
+    command: ["python", "-m", "src.workers.default_worker"]
+
+  training-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    depends_on:
+      temporal-server:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    environment:
+      - PIPELINE_TEMPORAL_HOST=temporal-server:7233
+      - PIPELINE_S3_ENDPOINT_URL=http://localstack:4566
+      - PIPELINE_SQS_ENDPOINT_URL=http://localstack:4566
+      - PIPELINE_AWS_ACCESS_KEY_ID=test
+      - PIPELINE_AWS_SECRET_ACCESS_KEY=test
+    command: ["python", "-m", "src.workers.training_worker"]
+
+  trigger:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    depends_on:
+      temporal-server:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    environment:
+      - PIPELINE_TEMPORAL_HOST=temporal-server:7233
+      - PIPELINE_S3_ENDPOINT_URL=http://localstack:4566
+      - PIPELINE_SQS_ENDPOINT_URL=http://localstack:4566
+      - PIPELINE_AWS_ACCESS_KEY_ID=test
+      - PIPELINE_AWS_SECRET_ACCESS_KEY=test
+    command: ["python", "-m", "src.trigger"]

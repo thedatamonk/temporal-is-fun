@@ -1,0 +1,87 @@
+# AWS deployment — standalone, no overrides needed
+# Usage: docker compose -f docker-compose-aws.yml up -d
+# Requires PIPELINE_S3_BUCKET and PIPELINE_SQS_QUEUE_NAME env vars.
+
+services:
+  postgresql:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: temporal
+      POSTGRES_PASSWORD: temporal
+      POSTGRES_DB: temporal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U temporal"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  temporal-server:
+    image: temporalio/auto-setup:latest
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    environment:
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=postgresql
+    ports:
+      - "7233:7233"
+    healthcheck:
+      test: ["CMD", "tctl", "--address", "temporal-server:7233", "cluster", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  temporal-ui:
+    image: temporalio/ui:latest
+    depends_on:
+      temporal-server:
+        condition: service_healthy
+    environment:
+      - TEMPORAL_ADDRESS=temporal-server:7233
+    ports:
+      - "8080:8080"
+
+  default-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    depends_on:
+      temporal-server:
+        condition: service_healthy
+    environment:
+      - PIPELINE_TEMPORAL_HOST=temporal-server:7233
+      - PIPELINE_S3_BUCKET=${PIPELINE_S3_BUCKET}
+      - PIPELINE_S3_REGION=us-east-1
+      - PIPELINE_SQS_QUEUE_NAME=${PIPELINE_SQS_QUEUE_NAME}
+    command: ["python", "-m", "src.workers.default_worker"]
+
+  training-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    depends_on:
+      temporal-server:
+        condition: service_healthy
+    environment:
+      - PIPELINE_TEMPORAL_HOST=temporal-server:7233
+      - PIPELINE_S3_BUCKET=${PIPELINE_S3_BUCKET}
+      - PIPELINE_S3_REGION=us-east-1
+    command: ["python", "-m", "src.workers.training_worker"]
+
+  trigger:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    depends_on:
+      temporal-server:
+        condition: service_healthy
+    environment:
+      - PIPELINE_TEMPORAL_HOST=temporal-server:7233
+      - PIPELINE_S3_BUCKET=${PIPELINE_S3_BUCKET}
+      - PIPELINE_S3_REGION=us-east-1
+      - PIPELINE_SQS_QUEUE_NAME=${PIPELINE_SQS_QUEUE_NAME}
+    command: ["python", "-m", "src.trigger"]

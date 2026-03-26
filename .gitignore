@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+.pytest_cache/
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/terraform.tfvars
+terraform/.terraform.lock.hcl
+terraform.tfstate
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+
+
+# Env variables
+.env
+.env.prod
+.env.dev
