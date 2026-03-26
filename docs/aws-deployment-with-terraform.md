@@ -136,16 +136,20 @@ When the instance first boots, this script runs automatically:
 ```bash
 #!/bin/bash
 dnf update -y                       # Update all packages
-dnf install -y docker git           # Install Docker and Git
+dnf install -y docker git           # Install Docker from Amazon's repos
 systemctl enable docker             # Start Docker on boot
 systemctl start docker              # Start Docker now
-usermod -aG docker ec2-user         # Let ec2-user run docker commands
 
-# Install Docker Compose plugin
+# Install Docker Compose and Buildx plugins (AL2023's bundled buildx is too old)
 mkdir -p /usr/local/lib/docker/cli-plugins
 curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" \
   -o /usr/local/lib/docker/cli-plugins/docker-compose
+curl -SL "https://github.com/docker/buildx/releases/download/v0.32.1/buildx-v0.32.1.linux-amd64" \
+  -o /usr/local/lib/docker/cli-plugins/docker-buildx
 chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+chmod +x /usr/local/lib/docker/cli-plugins/docker-buildx
+
+usermod -aG docker ec2-user         # Let ec2-user run docker commands
 
 echo "Bootstrap complete" > /tmp/bootstrap-done
 ```
